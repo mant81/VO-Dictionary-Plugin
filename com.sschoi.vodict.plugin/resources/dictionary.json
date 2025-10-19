@@ -1,0 +1,9 @@
+{
+  "dictionary": [
+    { "en": "account", "ko": "계정" },
+    { "en": "customer", "ko": "고객" },
+    { "en": "balance", "ko": "잔액" },
+    { "en": "transaction", "ko": "거래" },
+    { "en": "payment", "ko": "결제" }
+  ]
+}
