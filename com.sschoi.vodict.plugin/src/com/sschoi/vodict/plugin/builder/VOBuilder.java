@@ -6,19 +6,27 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.sschoi.vodict.plugin.validator.DictionaryValidator;
 
 public class VOBuilder extends IncrementalProjectBuilder {
     public static final String BUILDER_ID = "com.sschoi.vodict.plugin.vobuilder";
 
     @Override
     protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
+        VOValidator validator = new VOValidator();
+
         IResourceDelta delta = getDelta(getProject());
         if (delta == null) {
-            getProject().accept(new DictionaryValidator());
+            getProject().accept(resource -> {
+                validator.validate(resource);
+                return true;
+            });
         } else {
-            delta.accept(new DictionaryValidator());
+            delta.accept(delta1 -> {
+                validator.validate(delta1.getResource());
+                return true;
+            });
         }
         return null;
     }
+
 }
