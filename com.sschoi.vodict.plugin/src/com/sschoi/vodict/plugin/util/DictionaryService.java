@@ -7,7 +7,7 @@ import org.json.*;
 
 public class DictionaryService {
 
-    private static final String DICT_PATH = "dictionary.json";
+    private static final String DICT_PATH = "/resources/dictionary.json";
 
     // static map으로 싱글톤처럼 사용
     private static final Map<String, String> dictMap = new HashMap<>();
