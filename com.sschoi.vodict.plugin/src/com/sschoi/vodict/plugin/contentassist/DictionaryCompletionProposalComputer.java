@@ -10,9 +10,15 @@ import com.sschoi.vodict.plugin.util.DictionaryService;
 
 public class DictionaryCompletionProposalComputer implements IJavaCompletionProposalComputer {
 
+	public DictionaryCompletionProposalComputer() {
+        System.out.println("[VO-DICT] 생성자 호출됨 ✅");
+    }
+	
     @Override
     public List<ICompletionProposal> computeCompletionProposals(ContentAssistInvocationContext context, IProgressMonitor monitor) {
-        List<ICompletionProposal> proposals = new ArrayList<>();
+    	System.out.println("[VO-DICT] computeCompletionProposals 실행됨 ✅");
+    	
+    	List<ICompletionProposal> proposals = new ArrayList<>();
         try {
             IDocument doc = context.getDocument();
             int offset = context.getInvocationOffset();
