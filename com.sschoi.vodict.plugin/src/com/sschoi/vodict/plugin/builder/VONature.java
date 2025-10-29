@@ -19,11 +19,16 @@ public class VONature implements IProjectNature {
 
         ICommand newCommand = desc.newCommand();
         newCommand.setBuilderName(VOBuilder.BUILDER_ID);
+        
+        // VO Dictionary 빌더를 마지막에 실행되도록 설정 (Java 빌더 이후)
         ICommand[] newCommands = new ICommand[commands.length + 1];
         System.arraycopy(commands, 0, newCommands, 0, commands.length);
         newCommands[commands.length] = newCommand;
+        
         desc.setBuildSpec(newCommands);
         project.setDescription(desc, null);
+        
+        System.out.println("🔧 VO Dictionary 빌더가 마지막 순서로 설정됨");
     }
 
     @Override

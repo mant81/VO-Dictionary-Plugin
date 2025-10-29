@@ -19,7 +19,7 @@
     <extension
           id="vobuilder"
           point="org.eclipse.core.resources.builders">
-        <builder hasNature="true">
+        <builder hasNature="true" autoBuild="true">
             <run class="com.sschoi.vodict.plugin.builder.VOBuilder"/>
         </builder>
     </extension>
@@ -30,6 +30,11 @@
           point="org.eclipse.core.resources.markers">
         <super type="org.eclipse.core.resources.problemmarker"/>
         <persistent value="true"/>
+        <attribute name="com.sschoi.vodict.plugin.source"/>
+        <attribute name="org.eclipse.jdt.core.compiler.problem.sourceId"/>
+        <attribute name="org.eclipse.jdt.core.compiler.problem.argument"/>
+        <attribute name="org.eclipse.jdt.core.compiler.problem.taskPriority"/>
+        <attribute name="org.eclipse.jdt.core.compiler.problem.taskSeverity"/>
     </extension>
 
     <!-- Quick Fix Processor -->
