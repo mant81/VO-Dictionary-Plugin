@@ -6,38 +6,38 @@
    provider-name="sschoi"
    class="com.sschoi.vodict.plugin.Activator">
 
-    <!-- VO Nature -->
-    <extension
-          id="vonature"
-          point="org.eclipse.core.resources.natures">
-        <runtime>
-            <run class="com.sschoi.vodict.plugin.builder.VONature"/>
-        </runtime>
-    </extension>
-
-    <!-- VO Builder -->
+    <!-- ✅ VO Builder 등록 -->
     <extension
           id="vobuilder"
+          name="VO Builder"
           point="org.eclipse.core.resources.builders">
-        <builder hasNature="true" autoBuild="true">
+        <builder>
             <run class="com.sschoi.vodict.plugin.builder.VOBuilder"/>
         </builder>
     </extension>
 
-    <!-- Marker 정의 -->
+    <!-- ✅ VO Nature 등록 -->
     <extension
-          id="marker"
+          id="vonature"
+          name="VO Nature"
+          point="org.eclipse.core.resources.natures">
+        <runtime>
+            <run class="com.sschoi.vodict.plugin.builder.VONature"/>
+        </runtime>
+        <requires-nature id="org.eclipse.jdt.core.javanature"/>
+        <builder id="com.sschoi.vodict.plugin.vobuilder"/>
+    </extension>
+
+    <!-- ✅ Marker 정의 -->
+    <extension
+          id="voProblemMarker"
+          name="VO Dictionary Problem Marker"
           point="org.eclipse.core.resources.markers">
         <super type="org.eclipse.core.resources.problemmarker"/>
         <persistent value="true"/>
-        <attribute name="com.sschoi.vodict.plugin.source"/>
-        <attribute name="org.eclipse.jdt.core.compiler.problem.sourceId"/>
-        <attribute name="org.eclipse.jdt.core.compiler.problem.argument"/>
-        <attribute name="org.eclipse.jdt.core.compiler.problem.taskPriority"/>
-        <attribute name="org.eclipse.jdt.core.compiler.problem.taskSeverity"/>
     </extension>
 
-    <!-- Quick Fix Processor -->
+    <!-- ✅ Quick Fix Processor -->
     <extension
           id="voQuickFix"
           point="org.eclipse.jdt.ui.quickFixProcessors">
@@ -46,7 +46,7 @@
               class="com.sschoi.vodict.plugin.quickfix.QuickFixProcessor"/>
     </extension>
 
-    <!-- ▣ Content Assist / 자동완성 -->
+    <!-- ✅ Content Assist -->
     <extension
 	      id="voContentAssist"
 	      point="org.eclipse.jdt.ui.javaCompletionProposalComputer">
@@ -60,5 +60,27 @@
 	   </computer>
 	</extension>
 
+    <!-- ✅ Add VO Nature 메뉴 -->
+    <extension point="org.eclipse.ui.commands">
+        <command
+            id="com.sschoi.vodict.plugin.commands.addNature"
+            name="Add VO Nature"
+            description="Adds the VO Dictionary nature to the selected project"/>
+    </extension>
 
+    <extension point="org.eclipse.ui.handlers">
+        <handler
+            commandId="com.sschoi.vodict.plugin.commands.addNature"
+            class="com.sschoi.vodict.plugin.commands.AddVONatureHandler"/>
+    </extension>
+
+    <extension point="org.eclipse.ui.menus">
+        <menuContribution
+            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+            <command
+                commandId="com.sschoi.vodict.plugin.commands.addNature"
+                label="Add VO Nature"
+                style="push"/>
+        </menuContribution>
+    </extension>
 </plugin>

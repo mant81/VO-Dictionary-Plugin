@@ -1,43 +1,59 @@
 package com.sschoi.vodict.plugin.util;
 
-import java.io.InputStream;
+import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.json.*;
+import org.osgi.framework.Bundle;
 
 public class DictionaryService {
 
-    private static final String DICT_PATH = "/resources/dictionary.json";
+    private static final String PLUGIN_ID = "com.sschoi.vodict.plugin";
+    private static final String DICT_PATH = "resources/dictionary.json";
 
-    // static map으로 싱글톤처럼 사용
     private static final Map<String, String> dictMap = new HashMap<>();
     private static boolean loaded = false;
 
     /** 초기화 */
-    private static void loadDictionary() {
-        if (loaded) return; // 이미 로드됨
+    private static synchronized void loadDictionary() {
+        if (loaded) return;
 
-        try (InputStream is = DictionaryService.class.getResourceAsStream(DICT_PATH)) {
-            if (is == null) {
-                System.err.println("⚠ dictionary.json not found");
+        try {
+            Bundle bundle = Platform.getBundle(PLUGIN_ID);
+            if (bundle == null) {
+                System.err.println("⚠ DictionaryService: Plugin bundle not found (" + PLUGIN_ID + ")");
                 loaded = true;
                 return;
             }
 
-            String jsonText = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            JSONObject obj = new JSONObject(jsonText);
-            JSONArray arr = obj.getJSONArray("dictionary");
-
-            for (int i = 0; i < arr.length(); i++) {
-                JSONObject o = arr.getJSONObject(i);
-                dictMap.put(o.getString("en").toLowerCase(), o.getString("ko"));
+            // ✅ plugin 내부 리소스에서 dictionary.json 읽기
+            URL fileURL = bundle.getEntry(DICT_PATH);
+            if (fileURL == null) {
+                System.err.println("⚠ DictionaryService: dictionary.json not found in " + DICT_PATH);
+                loaded = true;
+                return;
             }
 
-            loaded = true;
-            System.out.println("📘 Dictionary loaded (" + dictMap.size() + " words)");
+            try (InputStream is = FileLocator.toFileURL(fileURL).openStream()) {
+                String jsonText = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                JSONObject obj = new JSONObject(jsonText);
+                JSONArray arr = obj.getJSONArray("dictionary");
+
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject o = arr.getJSONObject(i);
+                    dictMap.put(o.getString("en").toLowerCase(), o.getString("ko"));
+                }
+
+                System.out.println("📘 Dictionary loaded (" + dictMap.size() + " words)");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
             loaded = true;
         }
     }
@@ -45,19 +61,21 @@ public class DictionaryService {
     /** 영어 단어가 사전에 있는지 확인 */
     public static boolean exists(String word) {
         loadDictionary();
-        return dictMap.containsKey(word.toLowerCase());
+        return word != null && dictMap.containsKey(word.toLowerCase());
     }
 
-    /** 영어 단어 → 한글 뜻 반환 (없으면 Optional.empty) */
+    /** 영어 단어 → 한글 뜻 반환 */
     public static Optional<String> getKoreanMeaning(String word) {
         loadDictionary();
-        return Optional.ofNullable(dictMap.get(word.toLowerCase()));
+        return word == null ? Optional.empty()
+                : Optional.ofNullable(dictMap.get(word.toLowerCase()));
     }
 
-    /** prefix 기반 자동완성: 영어 시작 문자열 → 매칭 단어 리스트 */
+    /** prefix 기반 자동완성 */
     public static List<Map<String, String>> searchPrefix(String prefix) {
         loadDictionary();
         List<Map<String, String>> results = new ArrayList<>();
+        if (prefix == null) return results;
 
         String lowerPrefix = prefix.toLowerCase();
         for (Map.Entry<String, String> entry : dictMap.entrySet()) {
